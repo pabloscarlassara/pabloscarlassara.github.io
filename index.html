@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Auditor de Algoritmo – Seleção de Vagas</title>
+<style>
+:root{--bg:#f2f4f7;--card:#fff;--tx:#101c2e;--mut:#5a6678;--bd:#d3d9e2;--hd:#e9edf3;--pri:#1b3a5c;--ok:#0f6e66;--bad:#a8281f;--bar:#3b5b82;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1520;--card:#151f2d;--tx:#e8edf5;--mut:#93a0b4;--bd:#2a3649;--hd:#1b2738;--pri:#6f9bd1;--ok:#3fb5a8;--bad:#ef7b70;--bar:#6f9bd1}}
+:root[data-theme="dark"]{--bg:#0e1520;--card:#151f2d;--tx:#e8edf5;--mut:#93a0b4;--bd:#2a3649;--hd:#1b2738;--pri:#6f9bd1;--ok:#3fb5a8;--bad:#ef7b70;--bar:#6f9bd1}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
+.wrap{max-width:1040px;margin:auto;padding:0 16px 32px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:22px 0 14px;flex-wrap:wrap;border-bottom:2px solid var(--pri);margin-bottom:16px}
+h1{margin:0;font-size:1.25rem;font-weight:700;letter-spacing:.01em}
+header p{margin:2px 0 0;color:var(--mut);font-size:.85rem}
+button{font:inherit;cursor:pointer;color:var(--tx)}
+.cfg{background:var(--pri);color:#fff;border:1px solid var(--pri);border-radius:2px;padding:9px 18px;font-weight:600;font-size:.88rem;letter-spacing:.02em}
+:root[data-theme="dark"] .cfg{color:#0e1520}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cfg{color:#0e1520}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:3px}
+.strip{display:flex;gap:28px;padding:10px 14px;margin-bottom:12px;font-size:.82rem;color:var(--mut);flex-wrap:wrap}
+.strip b{color:var(--tx);font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:40px 1fr 84px 50px 50px 54px 56px 170px 108px;align-items:center;gap:8px;padding:0 14px}
+.th{height:38px;background:var(--hd);border-bottom:1px solid var(--bd);font-size:.7rem;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.c{text-align:center;font-variant-numeric:tabular-nums}
+#list{position:relative}
+.row{position:absolute;left:0;right:0;height:60px;border-bottom:1px solid var(--bd);background:var(--card);transition:top .6s cubic-bezier(.3,.8,.3,1),background .3s;font-size:.88rem}
+.row.in{background:color-mix(in srgb,var(--ok) 7%,var(--card))}
+.row.in::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ok)}
+.pos{font-weight:700;text-align:center}
+.mv{display:block;font-size:.62rem;font-weight:600;color:var(--mut)}
+.cand{display:flex;align-items:center;gap:10px;min-width:0}
+.av{width:30px;height:30px;border-radius:2px;display:grid;place-items:center;background:var(--hd);border:1px solid var(--bd);color:var(--pri);font-weight:700;flex:none;font-size:.8rem}
+.nm{font-weight:600}
+.det{font-size:.72rem;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1em}
+.neg{color:var(--bad);font-weight:600}
+.gn{color:var(--mut);font-size:.8rem}
+.sw{display:flex;align-items:center;gap:8px}
+.bar{flex:1;height:6px;background:var(--hd);border-radius:1px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--bar);transition:width .5s}
+.sc{font-weight:700;width:42px;text-align:right;font-variant-numeric:tabular-nums}
+.st{font-size:.68rem;font-weight:600;padding:3px 8px;border-radius:2px;text-align:center;border:1px solid var(--bd);color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.row.in .st{background:var(--ok);border-color:var(--ok);color:#fff}
+.scroll{overflow-x:auto}
+@media(max-width:760px){.grid{grid-template-columns:34px 1fr 150px}.hm{display:none}}
+.foot{padding:10px 14px;font-size:.75rem;color:var(--mut)}
+.ov{position:fixed;inset:0;background:rgba(10,18,30,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:10}
+.ov.open{opacity:1;pointer-events:auto}
+aside{position:fixed;top:0;right:0;bottom:0;width:min(380px,100%);background:var(--card);border-left:1px solid var(--bd);z-index:11;transform:translateX(100%);transition:transform .3s;overflow-y:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 18px calc(20px + env(safe-area-inset-bottom,0px))}
+aside.open{transform:none}
+aside h2{margin:0;font-size:1rem;display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:2px solid var(--pri)}
+.x{border:0;background:none;font-size:1.4rem;color:var(--mut)}
+.grp{margin:20px 0 6px;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);font-weight:700;border-bottom:1px solid var(--bd);padding-bottom:4px}
+.ctl{margin:12px 0}
+.ctl label{display:flex;justify-content:space-between;font-size:.86rem}
+.ctl b{font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--pri)}
+.hint{font-size:.75rem;color:var(--mut);margin:0}
+details{margin-top:24px;border-top:1px solid var(--bd);padding-top:12px}
+summary{cursor:pointer;font-size:.78rem;color:var(--mut)}
+.pr{display:flex;gap:8px;margin-top:10px}
+.pr button,.rs{border:1px solid var(--bd);background:var(--hd);border-radius:2px;padding:8px;font-size:.78rem}
+.pr button{flex:1}
+.rs{margin-top:14px;width:100%;background:none;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div><h1>Auditor de Algoritmo</h1><p>Seleção para Engenharia de Software · 10 candidatos fictícios · 3 vagas</p></div>
+<button class="cfg" id="open">Configurar regras</button>
+</header>
+
+<div class="card strip"><span>Candidatos: <b>10</b></span><span>Vagas: <b>3</b></span><span>Mérito médio dos selecionados: <b id="avg">0</b></span></div>
+
+<div class="card scroll">
+<div class="grid th"><div class="c">#</div><div>Candidato</div><div class="hm">Gênero</div><div class="c hm">Form.</div><div class="c hm">Exp.</div><div class="c hm">Teste</div><div class="c hm">Lacuna</div><div>Nota final</div><div class="hm c">Situação</div></div>
+<div id="list"></div>
+<div class="foot">Dados fictícios para fins de demonstração.</div>
+</div>
+</div>
+
+<div class="ov" id="ov"></div>
+<aside id="dr" aria-label="Configuração das regras">
+<h2>Regras do algoritmo <button class="x" id="close" aria-label="Fechar">×</button></h2>
+<p class="hint" style="margin-top:8px">Ajuste os parâmetros e acompanhe o ranking em tempo real.</p>
+<div class="grp">Pesos de mérito</div>
+<div class="ctl"><label><span>Formação</span><b id="vf"></b></label><input type="range" id="wf" min="0" max="5" step="0.5"></div>
+<div class="ctl"><label><span>Experiência</span><b id="ve"></b></label><input type="range" id="we" min="0" max="5" step="0.5"></div>
+<div class="ctl"><label><span>Teste técnico</span><b id="vt"></b></label><input type="range" id="wt" min="0" max="5" step="0.5"></div>
+<div class="grp">Critérios indiretos</div>
+<div class="ctl"><label><span>Penalidade por mês de lacuna</span><b id="vg"></b></label><input type="range" id="pg" min="0" max="3" step="0.25"><p class="hint">Licença-maternidade, cuidado de familiares e saúde viram "lacuna".</p></div>
+<div class="ctl"><label><span>Bônus "disponível p/ plantão noturno"</span><b id="vd"></b></label><input type="range" id="bd" min="0" max="20" step="1"><p class="hint">Critério aparentemente neutro, aplicado a todos os candidatos.</p></div>
+<details><summary>Cenários prontos (avançado)</summary>
+<div class="pr"><button id="pB">Algoritmo original</button><button id="pA">Auditado</button></div></details>
+<button class="rs" id="rs">Restaurar regras iniciais</button>
+</aside>
+
+<script>
+const C=[
+["Ana","F",9,8,9.5,10,0],["Beatriz","F",8.5,9,9,14,0],["Camila","F",9,7,8.5,6,0],["Daniela","F",8,8,9,8,1],["Elisa","F",9.5,6,9,12,0],
+["Bruno","M",8,7,7.5,0,1],["Carlos","M",7.5,8,7,0,1],["Diego","M",8.5,6,7,2,1],["Eduardo","M",7,7,8,0,1],["Felipe","M",8,6.5,7.5,3,1]
+].map(([n,g,f,e,t,gap,d])=>({n,g,f,e,t,gap,d}));
+const P={bias:{wf:2,we:3,wt:2,pg:1.5,bd:15},aud:{wf:2,we:3,wt:3,pg:0,bd:0}};
+const ids=["wf","we","wt","pg","bd"],vmap={wf:"vf",we:"ve",wt:"vt",pg:"vg",bd:"vd"};
+const H=60,VAGAS=3,$=id=>document.getElementById(id),list=$("list");
+list.style.height=C.length*H+"px";
+const rows=C.map(c=>{const r=document.createElement("div");r.className="row grid";
+r.innerHTML=`<div class="pos"><span class="n"></span><span class="mv"></span></div><div class="cand"><div class="av">${c.n[0]}</div><div style="min-width:0"><div class="nm">${c.n}</div><div class="det"></div></div></div><div class="gn hm">${c.g=="F"?"Feminino":"Masculino"}</div><div class="c hm">${c.f}</div><div class="c hm">${c.e}</div><div class="c hm">${c.t}</div><div class="c hm">${c.gap?c.gap+" m":"—"}</div><div class="sw"><div class="bar"><i></i></div><div class="sc"></div></div><div class="st hm"></div>`;
+list.appendChild(r);return r});
+const score=(c,w)=>c.f*w.wf+c.e*w.we+c.t*w.wt-c.gap*w.pg+c.d*w.bd;
+const base=[...C.keys()].sort((a,b)=>score(C[b],P.bias)-score(C[a],P.bias));
+const basePos={};base.forEach((i,k)=>basePos[i]=k);
+const get=()=>Object.fromEntries(ids.map(i=>[i,+$(i).value]));
+function calc(){
+const w=get();
+ids.forEach(i=>$(vmap[i]).textContent=(i=="pg"?"−":i=="bd"?"+":"×")+w[i]);
+const s=C.map((c,i)=>{const mer=c.f*w.wf+c.e*w.we+c.t*w.wt,pen=c.gap*w.pg,bon=c.d*w.bd;return{i,c,mer,pen,bon,tot:mer-pen+bon}}).sort((a,b)=>b.tot-a.tot);
+const max=Math.max(10,...s.map(x=>x.tot));
+s.forEach((x,k)=>{const r=rows[x.i],inn=k<VAGAS;
+r.style.top=k*H+"px";r.classList.toggle("in",inn);
+r.querySelector(".n").textContent=k+1;
+const d=basePos[x.i]-k;
+r.querySelector(".mv").textContent=d>0?"▲ "+d:d<0?"▼ "+(-d):"";
+r.querySelector(".bar i").style.width=Math.max(0,x.tot/max*100)+"%";
+r.querySelector(".sc").textContent=x.tot.toFixed(1);
+r.querySelector(".st").textContent=inn?"Selecionado":"Não selec.";
+r.querySelector(".det").innerHTML=x.pen>0?`<span class="neg">−${x.pen.toFixed(1)} lacuna no currículo</span>`:"";
+});
+$("avg").textContent=(s.slice(0,VAGAS).reduce((a,x)=>a+x.mer,0)/VAGAS).toFixed(1);
+}
+function setP(p){ids.forEach(i=>$(i).value=p[i]);calc()}
+ids.forEach(i=>$(i).addEventListener("input",calc));
+$("pB").onclick=()=>setP(P.bias);$("pA").onclick=()=>setP(P.aud);$("rs").onclick=()=>setP(P.bias);
+const dr=o=>{$("dr").classList.toggle("open",o);$("ov").classList.toggle("open",o)};
+$("open").onclick=()=>dr(true);$("close").onclick=()=>dr(false);$("ov").onclick=()=>dr(false);
+document.addEventListener("keydown",e=>{if(e.key=="Escape")dr(false)});
+setP(P.bias);
+</script>
+</body>
+</html>
