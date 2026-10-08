@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Auditor de Algoritmo – Seleção de Vagas</title>
+<style>
+:root{--bg:#f6f4fb;--card:#fff;--tx:#1d1b2e;--mut:#6b6880;--bd:#e3dff0;--pri:#6d3fd9;--w:#d6336c;--m:#2f7fd1;--bad:#d9382f;--ok:#1f9d63;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14121f;--card:#1e1b2e;--tx:#f0eefb;--mut:#a29ebb;--bd:#322e48;--pri:#9b7cf2;--w:#f06595;--m:#5aa6f0;--bad:#ff6b61;--ok:#3ccf8e}}
+:root[data-theme="dark"]{--bg:#14121f;--card:#1e1b2e;--tx:#f0eefb;--mut:#a29ebb;--bd:#322e48;--pri:#9b7cf2;--w:#f06595;--m:#5aa6f0;--bad:#ff6b61;--ok:#3ccf8e}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
+header{padding:20px 16px 8px;max-width:1100px;margin:auto}
+h1{margin:0;font-size:1.5rem}
+header p{margin:4px 0 0;color:var(--mut)}
+main{max-width:1100px;margin:auto;padding:8px 16px 32px;display:grid;gap:16px;grid-template-columns:320px 1fr}
+@media(max-width:820px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px}
+h2{font-size:1rem;margin:0 0 10px}
+.presets{display:flex;gap:8px;margin-bottom:12px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:9px 10px;flex:1}
+button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+button.bias.on{background:var(--bad);border-color:var(--bad)}
+.ctl{margin:12px 0}
+.ctl label{display:flex;justify-content:space-between;font-size:.88rem}
+.ctl b{font-variant-numeric:tabular-nums}
+.ctl.danger label span:first-child{color:var(--bad);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--pri)}
+.danger input[type=range]{accent-color:var(--bad)}
+.hint{font-size:.78rem;color:var(--mut);margin:0}
+.meter{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.big{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.badge{padding:4px 10px;border-radius:99px;font-size:.8rem;font-weight:700;color:#fff}
+.badge.bad{background:var(--bad)}.badge.ok{background:var(--ok)}
+#list{position:relative;margin-top:12px}
+.row{position:absolute;left:0;right:0;height:64px;display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--bd);border-radius:12px;background:var(--card);transition:top .6s cubic-bezier(.3,.8,.3,1),opacity .3s}
+.row.out{opacity:.5}
+.pos{width:26px;font-weight:800;color:var(--mut);text-align:center}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;flex:none}
+.av.F{background:var(--w)}.av.M{background:var(--m)}
+.info{flex:1;min-width:0}
+.nm{font-weight:600;font-size:.92rem;display:flex;gap:6px;align-items:center}
+.nm small{color:var(--mut);font-weight:400}
+.bar{height:8px;background:var(--bd);border-radius:6px;margin:5px 0 3px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%;transition:width .5s}
+.bar .g{background:var(--pri)}
+.det{font-size:.72rem;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.det .neg{color:var(--bad);font-weight:700}.det .pos2{color:var(--ok);font-weight:700}
+.sc{font-weight:800;font-size:1.1rem;width:48px;text-align:right;font-variant-numeric:tabular-nums}
+.cut{position:absolute;left:0;right:0;border-top:2px dashed var(--pri);pointer-events:none;transition:top .3s}
+.cut span{position:absolute;right:0;top:-20px;font-size:.72rem;color:var(--pri);font-weight:700}
+.legend{font-size:.8rem;color:var(--mut);display:flex;gap:14px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.why{margin-top:12px;font-size:.85rem;color:var(--mut)}
+</style>
+</head>
+<body>
+<header>
+<h1>🔍 Auditor de Algoritmo</h1>
+<p>Vaga: Engenharia de Software · 10 candidatos fictícios · 3 vagas. Mexa nas regras e veja quem sobe ou desce.</p>
+</header>
+<main>
+<section class="card">
+<h2>Regras do algoritmo</h2>
+<div class="presets">
+<button id="pB" class="bias on">🤖 Algoritmo original</button>
+<button id="pA">⚖️ Auditado</button>
+</div>
+<div class="ctl"><label><span>Peso: Formação</span><b id="vf"></b></label><input type="range" id="wf" min="0" max="5" step="0.5"></div>
+<div class="ctl"><label><span>Peso: Experiência</span><b id="ve"></b></label><input type="range" id="we" min="0" max="5" step="0.5"></div>
+<div class="ctl"><label><span>Peso: Teste técnico</span><b id="vt"></b></label><input type="range" id="wt" min="0" max="5" step="0.5"></div>
+<div class="ctl danger"><label><span>⚠ Penalidade por mês de lacuna</span><b id="vg"></b></label><input type="range" id="pg" min="0" max="3" step="0.25">
+<p class="hint">Licença-maternidade, cuidado de familiares e doença viram "lacuna".</p></div>
+<div class="ctl danger"><label><span>⚠ Bônus "disponível p/ plantão noturno"</span><b id="vd"></b></label><input type="range" id="bd" min="0" max="20" step="1">
+<p class="hint">Parece neutro, mas favorece quem não tem responsabilidades de cuidado.</p></div>
+</section>
+<section>
+<div class="card">
+<div class="meter">
+<div><div class="hint">Mulheres entre as 3 selecionadas</div><div class="big" id="cnt">0/3</div></div>
+<span class="badge" id="bdg"></span>
+<div class="hint" style="flex:1;min-width:160px">No grupo de candidatos, 50% são mulheres e as notas técnicas delas são iguais ou maiores.</div>
+</div>
+</div>
+<div class="card" style="margin-top:16px">
+<h2>Ranking</h2>
+<div class="legend"><span><i class="dot" style="background:var(--w)"></i>Mulher</span><span><i class="dot" style="background:var(--m)"></i>Homem</span><span><i class="dot" style="background:var(--pri)"></i>Mérito técnico</span></div>
+<div id="list"></div>
+<p class="why" id="why"></p>
+</div>
+</section>
+</main>
+<script>
+const C=[
+["Ana","F",9,8,9.5,10,0],["Beatriz","F",8.5,9,9,14,0],["Camila","F",9,7,8.5,6,0],["Daniela","F",8,8,9,8,1],["Elisa","F",9.5,6,9,12,0],
+["Bruno","M",8,7,7.5,0,1],["Carlos","M",7.5,8,7,0,1],["Diego","M",8.5,6,7,2,1],["Eduardo","M",7,7,8,0,1],["Felipe","M",8,6.5,7.5,3,1]
+].map(([n,g,f,e,t,gap,d])=>({n,g,f,e,t,gap,d}));
+const P={bias:{wf:2,we:3,wt:2,pg:1.5,bd:15},aud:{wf:2,we:3,wt:3,pg:0,bd:0}};
+const ids=["wf","we","wt","pg","bd"],vmap={wf:"vf",we:"ve",wt:"vt",pg:"vg",bd:"vd"};
+const H=72,VAGAS=3,list=document.getElementById("list");
+list.style.height=C.length*H+"px";
+const rows=C.map(c=>{const r=document.createElement("div");r.className="row";
+r.innerHTML=`<div class="pos"></div><div class="av ${c.g}">${c.n[0]}</div><div class="info"><div class="nm">${c.n} <small>${c.g=="F"?"Mulher":"Homem"}</small></div><div class="bar"><i class="g"></i></div><div class="det"></div></div><div class="sc"></div>`;
+list.appendChild(r);return r});
+const cut=document.createElement("div");cut.className="cut";cut.innerHTML="<span>Linha de corte (3 vagas)</span>";list.appendChild(cut);
+const v=id=>+document.getElementById(id).value;
+function calc(){
+const w={wf:v("wf"),we:v("we"),wt:v("wt"),pg:v("pg"),bd:v("bd")};
+ids.forEach(i=>document.getElementById(vmap[i]).textContent=(i=="pg"?"−":i=="bd"?"+":"×")+w[i]);
+const s=C.map((c,i)=>{const mer=c.f*w.wf+c.e*w.we+c.t*w.wt,pen=c.gap*w.pg,bon=c.d*w.bd;return{i,c,mer,pen,bon,tot:mer-pen+bon}});
+s.sort((a,b)=>b.tot-a.tot);
+const max=Math.max(10,...s.map(x=>x.mer+x.bon)),min=Math.min(0,...s.map(x=>x.tot));
+s.forEach((x,k)=>{const r=rows[x.i];r.style.top=k*H+"px";r.classList.toggle("out",k>=VAGAS);
+r.querySelector(".pos").textContent=k+1;
+r.querySelector(".g").style.width=Math.max(0,Math.min(100,x.tot/max*100))+"%";
+r.querySelector(".sc").textContent=x.tot.toFixed(1);
+let d=`Mérito ${x.mer.toFixed(1)}`;
+if(x.pen>0)d+=` · <span class="neg">−${x.pen.toFixed(1)} lacuna (${x.c.gap} meses)</span>`;
+if(x.bon>0)d+=` · <span class="pos2">+${x.bon} plantão</span>`;
+r.querySelector(".det").innerHTML=d});
+cut.style.top=VAGAS*H-4+"px";
+const nf=s.slice(0,VAGAS).filter(x=>x.c.g=="F").length;
+document.getElementById("cnt").textContent=nf+"/"+VAGAS;
+const b=document.getElementById("bdg");
+if(nf<2){b.textContent="⚠ Viés detectado";b.className="badge bad"}else{b.textContent="✔ Resultado equilibrado";b.className="badge ok"}
+document.getElementById("why").textContent=nf<2?"Perceba: as mulheres têm mérito técnico igual ou maior, mas perdem pontos por regras que parecem neutras (lacunas e disponibilidade).":"Sem as penalidades indiretas, quem decide é o mérito técnico, e o ranking reflete as qualificações reais.";
+document.getElementById("pB").classList.toggle("on",JSON.stringify(w)==JSON.stringify(P.bias));
+document.getElementById("pA").classList.toggle("on",JSON.stringify(w)==JSON.stringify(P.aud));
+}
+function setP(p){ids.forEach(i=>document.getElementById(i).value=p[i]);calc()}
+ids.forEach(i=>document.getElementById(i).addEventListener("input",calc));
+document.getElementById("pB").onclick=()=>setP(P.bias);
+document.getElementById("pA").onclick=()=>setP(P.aud);
+setP(P.bias);
+</script>
+</body>
+</html>
